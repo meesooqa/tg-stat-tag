@@ -13,12 +13,16 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-type Service struct {
-	ServiceParams
+type TagCollector interface {
+	CollectTags(path string) ([]string, error)
 }
 
-type ServiceParams struct {
-	HtmlSelector string
+type TagFileCollector struct {
+	htmlSelector string
+}
+
+type Service struct {
+	collector TagCollector
 }
 
 type StatItem struct {
@@ -26,19 +30,26 @@ type StatItem struct {
 	Count int
 }
 
+func NewTagFileCollector(htmlSelector string) *TagFileCollector {
+	return &TagFileCollector{
+		htmlSelector: htmlSelector,
+	}
+}
+
 // NewService returns new Service instance
-func NewService(p ServiceParams) *Service {
+func NewService(c TagCollector) *Service {
 	return &Service{
-		ServiceParams: p,
+		collector: c,
 	}
 }
 
 func (s *Service) GetStat(path string) ([]StatItem, error) {
-	tags, err := s.collectTags(path)
+	tags, err := s.collector.CollectTags(path)
 	if err != nil {
 		return nil, err
 	}
 
+	// map: tag => count
 	tagStatMap := make(map[string]int)
 	for _, hashtag := range tags {
 		tagStatMap[hashtag]++
@@ -61,7 +72,7 @@ func (s *Service) GetStat(path string) ([]StatItem, error) {
 	return tagStat, nil
 }
 
-func (s *Service) collectTags(path string) ([]string, error) {
+func (c *TagFileCollector) collectTags(path string) ([]string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -77,7 +88,7 @@ func (s *Service) collectTags(path string) ([]string, error) {
 		for _, entry := range dirEntries {
 			if !entry.IsDir() {
 				filePath := filepath.Join(path, entry.Name())
-				fileTags, err := s.processFile(filePath)
+				fileTags, err := c.processFile(filePath)
 				if err != nil {
 					return nil, err
 				}
@@ -85,7 +96,7 @@ func (s *Service) collectTags(path string) ([]string, error) {
 			}
 		}
 	} else {
-		tags, err = s.processFile(path)
+		tags, err = c.processFile(path)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +105,7 @@ func (s *Service) collectTags(path string) ([]string, error) {
 	return tags, nil
 }
 
-func (s *Service) processFile(filePath string) ([]string, error) {
+func (c *TagFileCollector) processFile(filePath string) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -114,11 +125,11 @@ func (s *Service) processFile(filePath string) ([]string, error) {
 		}
 	}
 
-	return s.extractTags(content), nil
+	return c.extractTags(content), nil
 }
 
 // returns list of tags from the Telegram archived HTML
-func (s *Service) extractTags(messagesHTML string) (tags []string) {
+func (c *TagFileCollector) extractTags(messagesHTML string) (tags []string) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(messagesHTML))
 	if err != nil {
 		log.Printf("[ERROR] can't parse messagesHTML to parse tags: %q, error: %v", messagesHTML, err)
@@ -126,7 +137,7 @@ func (s *Service) extractTags(messagesHTML string) (tags []string) {
 	}
 
 	re := regexp.MustCompile(`#[a-zA-Zа-яА-ЯёЁ0-9]+`)
-	doc.Find(s.ServiceParams.HtmlSelector).Each(func(i int, s *goquery.Selection) {
+	doc.Find(c.htmlSelector).Each(func(i int, s *goquery.Selection) {
 		text := s.Text()
 		matches := re.FindAllString(text, -1)
 		tags = append(tags, matches...)
