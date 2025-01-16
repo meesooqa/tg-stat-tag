@@ -12,7 +12,7 @@ import (
 )
 
 type TagCollector interface {
-	CollectTags(path string) ([]string, error)
+	CollectTags(path string) []string
 }
 
 type TagFileCollector struct {
@@ -60,7 +60,7 @@ func (c *TagFileCollector) processFile(filePath string) []string {
 		log.Printf("[ERROR] can't open file: %s, error: %v", filePath, err)
 		return nil
 	}
-	defer file.Close()
+	defer file.Close() // TODO Unhandled error
 
 	var content string
 	reader := bufio.NewReader(file)
@@ -79,7 +79,7 @@ func (c *TagFileCollector) processFile(filePath string) []string {
 	return c.extractTags(content)
 }
 
-// returns list of tags from the Telegram archived HTML
+// returns list of hashtags from the Telegram archived HTML
 func (c *TagFileCollector) extractTags(messagesHTML string) (tags []string) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(messagesHTML))
 	if err != nil {

@@ -20,11 +20,8 @@ func NewService(c TagCollector) *Service {
 	}
 }
 
-func (s *Service) GetStat(path string) ([]StatItem, error) {
-	tags, err := s.collector.CollectTags(path)
-	if err != nil {
-		return nil, err
-	}
+func (s *Service) GetStat(path string) []StatItem {
+	tags := s.collector.CollectTags(path)
 
 	// map: tag => count
 	tagStatMap := make(map[string]int)
@@ -46,5 +43,5 @@ func (s *Service) GetStat(path string) ([]StatItem, error) {
 		return tagStat[i].Count > tagStat[j].Count
 	})
 
-	return tagStat, nil
+	return tagStat
 }
