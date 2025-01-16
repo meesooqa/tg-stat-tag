@@ -6,6 +6,28 @@ import (
 	"testing"
 )
 
+func TestTagFileCollector_CollectTags_File(t *testing.T) {
+	collector := &TagFileCollector{htmlSelector: "div"}
+
+	tempFile, err := os.CreateTemp("", "testfile*.html")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer func() { err = os.Remove(tempFile.Name()) }()
+
+	content := `<div class="message">#golang #test</div>`
+	if _, err := tempFile.Write([]byte(content)); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+
+	tags := collector.CollectTags(tempFile.Name())
+
+	expected := []string{"#golang", "#test"}
+	if !reflect.DeepEqual(tags, expected) {
+		t.Errorf("Expected %v, got %v", expected, tags)
+	}
+}
+
 func TestTagFileCollector_processFile(t *testing.T) {
 	collector := &TagFileCollector{htmlSelector: "div"}
 
