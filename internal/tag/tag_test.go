@@ -8,14 +8,10 @@ import (
 // TagCollector mock
 type MockCollector struct {
 	mockTags []string
-	err      error
 }
 
-func (m *MockCollector) CollectTags(_ string) ([]string, error) {
-	if m.err != nil {
-		return nil, m.err
-	}
-	return m.mockTags, nil
+func (m *MockCollector) CollectTags(_ string) []string {
+	return m.mockTags
 }
 
 func TestService_GetStat(t *testing.T) {
@@ -32,11 +28,7 @@ func TestService_GetStat(t *testing.T) {
 		{Tag: "#гдеё", Count: 1},
 	}
 
-	stat, err := service.GetStat("")
-	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
-	}
-
+	stat := service.GetStat("")
 	if !reflect.DeepEqual(stat, expected) {
 		t.Errorf("Expected %v, got %v", expected, stat)
 	}
