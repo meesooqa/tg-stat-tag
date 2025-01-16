@@ -2,9 +2,39 @@ package tag
 
 import (
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
+
+func TestTagFileCollector_CollectTags_Dir(t *testing.T) {
+	collector := &TagFileCollector{htmlSelector: "div"}
+
+	tempDir, err := os.MkdirTemp("", "testdir")
+	if err != nil {
+		t.Fatalf("Failed to create temp directory: %v", err)
+	}
+	defer func() { err = os.RemoveAll(tempDir) }()
+
+	content1 := `<div>#golang</div>`
+	content2 := `<div>#test1 #golang #test2</div>`
+
+	err = os.WriteFile(filepath.Join(tempDir, "file1.html"), []byte(content1), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create file1: %v", err)
+	}
+	err = os.WriteFile(filepath.Join(tempDir, "file2.html"), []byte(content2), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create file2: %v", err)
+	}
+
+	tags := collector.CollectTags(tempDir)
+
+	expected := []string{"#golang", "#test1", "#golang", "#test2"}
+	if !reflect.DeepEqual(tags, expected) {
+		t.Errorf("Expected %v, got %v", expected, tags)
+	}
+}
 
 func TestTagFileCollector_CollectTags_File(t *testing.T) {
 	collector := &TagFileCollector{htmlSelector: "div"}
@@ -15,14 +45,14 @@ func TestTagFileCollector_CollectTags_File(t *testing.T) {
 	}
 	defer func() { err = os.Remove(tempFile.Name()) }()
 
-	content := `<div class="message">#golang #test</div>`
+	content := `<div>#test #golang #test</div>`
 	if _, err := tempFile.Write([]byte(content)); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
 
 	tags := collector.CollectTags(tempFile.Name())
 
-	expected := []string{"#golang", "#test"}
+	expected := []string{"#test", "#golang", "#test"}
 	if !reflect.DeepEqual(tags, expected) {
 		t.Errorf("Expected %v, got %v", expected, tags)
 	}
@@ -37,14 +67,14 @@ func TestTagFileCollector_processFile(t *testing.T) {
 	}
 	defer func() { err = os.Remove(tempFile.Name()) }()
 
-	content := `<div class="message">#golang #test</div>`
+	content := `<div>#test #golang #test</div>`
 	if _, err := tempFile.Write([]byte(content)); err != nil {
 		t.Fatalf("Failed to write to temp file: %v", err)
 	}
 
 	tags := collector.processFile(tempFile.Name())
 
-	expected := []string{"#golang", "#test"}
+	expected := []string{"#test", "#golang", "#test"}
 	if !reflect.DeepEqual(tags, expected) {
 		t.Errorf("Expected %v, got %v", expected, tags)
 	}
