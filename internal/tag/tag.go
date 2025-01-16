@@ -1,7 +1,11 @@
 package tag
 
 import (
+	"bufio"
+	"io"
 	"log"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -29,13 +33,18 @@ func NewService(p ServiceParams) *Service {
 	}
 }
 
-func (s *Service) GetStat() (tagStat []StatItem) {
-	tags := s.collectTags()
+func (s *Service) GetStat(path string) ([]StatItem, error) {
+	tags, err := s.collectTags(path)
+	if err != nil {
+		return nil, err
+	}
 
 	tagStatMap := make(map[string]int)
 	for _, hashtag := range tags {
 		tagStatMap[hashtag]++
 	}
+
+	var tagStat []StatItem
 
 	for tag, count := range tagStatMap {
 		tagStat = append(tagStat, StatItem{tag, count})
@@ -49,40 +58,63 @@ func (s *Service) GetStat() (tagStat []StatItem) {
 		return tagStat[i].Count > tagStat[j].Count
 	})
 
-	return tagStat
+	return tagStat, nil
 }
 
-func (s *Service) collectTags() (tags []string) {
-	//files := []string{
-	//	"var/data/2025-01-15-gilticus_gifs/messages.html",
-	//	"var/data/2025-01-15-gilticus_gifs/messages2.html",
-	//	"var/data/2025-01-15-gilticus_gifs/messages3.html",
-	//}
-
-	//path := "var/data/2025-01-15-gilticus_gifs/messages.html"
-	//fi, err := os.Open(path)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer func() { err = fi.Close() }()
-
-	// TODO implement the method
-	tags = []string{
-		"asdf",
-		"bsdfasdf",
-		"csdfasdfasdf",
-		"asdf",
-		"dsdfasdfasdfasdf",
-		"dsdfasdfasdfasdf",
-		"esdfasdfasdfasdfasdf",
-		"hsdfasdfasdfasdfasdfasdf",
-		"dsdfasdfasdfasdf",
-		"ыаы",
-		"аыа",
-		"ыаы",
-		"123",
+func (s *Service) collectTags(path string) ([]string, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, err
 	}
-	return tags
+
+	var tags []string
+
+	if info.IsDir() {
+		dirEntries, err := os.ReadDir(path)
+		if err != nil {
+			return nil, err
+		}
+		for _, entry := range dirEntries {
+			if !entry.IsDir() {
+				filePath := filepath.Join(path, entry.Name())
+				fileTags, err := s.processFile(filePath)
+				if err != nil {
+					return nil, err
+				}
+				tags = append(tags, fileTags...)
+			}
+		}
+	} else {
+		tags, err = s.processFile(path)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return tags, nil
+}
+
+func (s *Service) processFile(filePath string) ([]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { err = file.Close() }()
+
+	var content string
+	reader := bufio.NewReader(file)
+	for {
+		line, err := reader.ReadString('\n')
+		content += line
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return s.extractTags(content), nil
 }
 
 // returns list of tags from the Telegram archived HTML
