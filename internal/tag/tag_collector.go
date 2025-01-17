@@ -87,11 +87,15 @@ func (c *TagFileCollector) extractTags(messagesHTML string) (tags []string) {
 		return nil
 	}
 
-	re := regexp.MustCompile(`#[a-zA-Zа-яА-ЯёЁ0-9]+`)
+	re := regexp.MustCompile(`#([a-zA-Zа-яА-ЯёЁ0-9]+)`)
 	doc.Find(c.htmlSelector).Each(func(i int, s *goquery.Selection) {
 		text := s.Text()
-		matches := re.FindAllString(text, -1)
-		tags = append(tags, matches...)
+		matches := re.FindAllStringSubmatch(text, -1)
+		for _, match := range matches {
+			if len(match) > 1 {
+				tags = append(tags, match[1]) // no #
+			}
+		}
 	})
 
 	return tags

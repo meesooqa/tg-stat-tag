@@ -63,7 +63,6 @@ func (f *HtmlFileFormatter) handler(w io.Writer, items []stat.StatItem) {
 		Items:    items,
 	}
 
-	// tmpl.Execute(w, data)
 	if err := tmpl.Execute(w, data); err != nil {
 		log.Fatal(err)
 	}

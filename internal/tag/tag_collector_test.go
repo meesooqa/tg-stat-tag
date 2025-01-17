@@ -30,7 +30,7 @@ func TestTagFileCollector_CollectTags_Dir(t *testing.T) {
 
 	tags := collector.CollectTags(tempDir)
 
-	expected := []string{"#golang", "#test1", "#golang", "#test2"}
+	expected := []string{"golang", "test1", "golang", "test2"}
 	if !reflect.DeepEqual(tags, expected) {
 		t.Errorf("Expected %v, got %v", expected, tags)
 	}
@@ -52,7 +52,7 @@ func TestTagFileCollector_CollectTags_File(t *testing.T) {
 
 	tags := collector.CollectTags(tempFile.Name())
 
-	expected := []string{"#test", "#golang", "#test"}
+	expected := []string{"test", "golang", "test"}
 	if !reflect.DeepEqual(tags, expected) {
 		t.Errorf("Expected %v, got %v", expected, tags)
 	}
@@ -74,7 +74,7 @@ func TestTagFileCollector_processFile(t *testing.T) {
 
 	tags := collector.processFile(tempFile.Name())
 
-	expected := []string{"#test", "#golang", "#test"}
+	expected := []string{"test", "golang", "test"}
 	if !reflect.DeepEqual(tags, expected) {
 		t.Errorf("Expected %v, got %v", expected, tags)
 	}
@@ -94,7 +94,7 @@ func TestTagFileCollector_extractTags(t *testing.T) {
 				<div>other text <a href="#">#tag3</a></div>
 				<p>more text #tag4</p>
 			`,
-			expectedTags: []string{"#tag1", "#tag2", "#tag3"},
+			expectedTags: []string{"tag1", "tag2", "tag3"},
 			expectError:  false,
 		},
 		{
@@ -112,7 +112,7 @@ func TestTagFileCollector_extractTags(t *testing.T) {
 		//		<div>some text #123abc</div>
 		//		<div>#invalidTag!@#</div>
 		//	`,
-		//	expectedTags: []string{"#123abc"},
+		//	expectedTags: []string{"123abc"},
 		//	expectError:  false,
 		//},
 		{
@@ -121,13 +121,13 @@ func TestTagFileCollector_extractTags(t *testing.T) {
 				<div>some text #тег1</div>
 				<div>#тег2 more text</div>
 			`,
-			expectedTags: []string{"#тег1", "#тег2"},
+			expectedTags: []string{"тег1", "тег2"},
 			expectError:  false,
 		},
 		{
 			name:         "Invalid HTML",
 			messagesHTML: `invalid html <div>#tag1</div>`,
-			expectedTags: []string{"#tag1"},
+			expectedTags: []string{"tag1"},
 			expectError:  true,
 		},
 	}
