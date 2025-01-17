@@ -2,13 +2,13 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/meesooqa/tg-stat-tag/internal/tag"
 )
 
 func main() {
-	path := "var/data/2025-01-15-gilticus_gifs/"
-	//path := "var/data/2025-01-15-gilticus_gifs/messages.html"
+	path := os.Args[1]
 
 	collector := tag.NewTagFileCollector("div.text a")
 	tagService := tag.NewService(collector)
