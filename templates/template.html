@@ -5,17 +5,6 @@
 </head>
 <body>
     <h1>{{ .Header }}</h1>
-    <table>
-        <tr>
-            <th>Hashtag ({{ .TagSum }})</th>
-            <th>Count ({{ .CountSum }})</th>
-        </tr>
-        {{ range .Items }}
-        <tr>
-            <td>{{ .Tag }}</td>
-            <td>{{ .Count }}</td>
-        </tr>
-        {{ end }}
-    </table>
+    {{template "table" .}}
 </body>
 </html>

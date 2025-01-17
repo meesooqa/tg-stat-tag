@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/meesooqa/tg-stat-tag/internal/stat"
 )
@@ -42,7 +43,10 @@ func (f *HtmlFileFormatter) Format(items []stat.StatItem) {
 }
 
 func (f *HtmlFileFormatter) handler(w io.Writer, items []stat.StatItem) {
-	tmpl := template.Must(template.ParseFiles("templates/template.html"))
+	tmpl := template.Must(template.ParseFiles(
+		filepath.Join("templates", "template.html"),
+		filepath.Join("templates", "table.html"),
+	))
 
 	var tagSum int
 	var countSum int
@@ -59,5 +63,8 @@ func (f *HtmlFileFormatter) handler(w io.Writer, items []stat.StatItem) {
 		Items:    items,
 	}
 
-	tmpl.Execute(w, data)
+	// tmpl.Execute(w, data)
+	if err := tmpl.Execute(w, data); err != nil {
+		log.Fatal(err)
+	}
 }

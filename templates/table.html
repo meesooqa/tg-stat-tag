@@ -1,0 +1,14 @@
+{{ define "table" }}
+<table>
+    <tr>
+        <th>Hashtag111 ({{ .TagSum }})</th>
+        <th>Count222 ({{ .CountSum }})</th>
+    </tr>
+    {{ range .Items }}
+    <tr>
+        <td>{{ .Tag }}</td>
+        <td>{{ .Count }}</td>
+    </tr>
+    {{ end }}
+</table>
+{{ end }}
