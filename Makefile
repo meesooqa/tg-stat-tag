@@ -1,7 +1,4 @@
-.PHONY: run test
-
-run:
-	go run cmd/tag/main.go
+.PHONY: test
 
 test:
 	go test -v ./...
