@@ -14,9 +14,11 @@ type Formatter interface {
 }
 
 type PageData struct {
-	Title  string
-	Header string
-	Items  []stat.StatItem
+	Title    string
+	Header   string
+	TagSum   int
+	CountSum int
+	Items    []stat.StatItem
 }
 
 type HtmlFileFormatter struct {
@@ -42,10 +44,19 @@ func (f *HtmlFileFormatter) Format(items []stat.StatItem) {
 func (f *HtmlFileFormatter) handler(w io.Writer, items []stat.StatItem) {
 	tmpl := template.Must(template.ParseFiles("templates/template.html"))
 
+	var tagSum int
+	var countSum int
+	for _, item := range items {
+		countSum += item.Count
+		tagSum++
+	}
+
 	data := PageData{
-		Title:  "Hashtag list",
-		Header: "Hashtags:",
-		Items:  items,
+		Title:    "Hashtag list",
+		Header:   "Hashtags:",
+		TagSum:   tagSum,
+		CountSum: countSum,
+		Items:    items,
 	}
 
 	tmpl.Execute(w, data)
