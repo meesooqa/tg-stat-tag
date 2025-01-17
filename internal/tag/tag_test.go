@@ -3,6 +3,8 @@ package tag
 import (
 	"reflect"
 	"testing"
+
+	"github.com/meesooqa/tg-stat-tag/internal/stat"
 )
 
 // TagCollector mock
@@ -20,7 +22,7 @@ func TestService_GetStat(t *testing.T) {
 
 	service := NewService(mockCollector)
 
-	expected := []StatItem{
+	expected := []stat.StatItem{
 		{Tag: "#golang", Count: 2},
 		{Tag: "#абвгде", Count: 2},
 		{Tag: "#example", Count: 1},
@@ -28,8 +30,8 @@ func TestService_GetStat(t *testing.T) {
 		{Tag: "#гдеё", Count: 1},
 	}
 
-	stat := service.GetStat("")
-	if !reflect.DeepEqual(stat, expected) {
-		t.Errorf("Expected %v, got %v", expected, stat)
+	tagStat := service.GetStat("")
+	if !reflect.DeepEqual(tagStat, expected) {
+		t.Errorf("Expected %v, got %v", expected, tagStat)
 	}
 }

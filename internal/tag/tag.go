@@ -2,15 +2,12 @@ package tag
 
 import (
 	"sort"
+
+	"github.com/meesooqa/tg-stat-tag/internal/stat"
 )
 
 type Service struct {
 	collector TagCollector
-}
-
-type StatItem struct {
-	Tag   string
-	Count int
 }
 
 // NewService returns new Service instance
@@ -20,7 +17,7 @@ func NewService(c TagCollector) *Service {
 	}
 }
 
-func (s *Service) GetStat(path string) []StatItem {
+func (s *Service) GetStat(path string) []stat.StatItem {
 	tags := s.collector.CollectTags(path)
 
 	// map: tag => count
@@ -29,10 +26,10 @@ func (s *Service) GetStat(path string) []StatItem {
 		tagStatMap[hashtag]++
 	}
 
-	var tagStat []StatItem
+	var tagStat []stat.StatItem
 
 	for tag, count := range tagStatMap {
-		tagStat = append(tagStat, StatItem{tag, count})
+		tagStat = append(tagStat, stat.StatItem{tag, count})
 	}
 	// sort by name
 	sort.Slice(tagStat, func(i, j int) bool {
