@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"github.com/meesooqa/tg-stat-tag/internal/format"
 	"os"
 
 	"github.com/meesooqa/tg-stat-tag/internal/tag"
@@ -13,9 +13,8 @@ func main() {
 	collector := tag.NewTagFileCollector("div.text a")
 	tagService := tag.NewService(collector)
 
-	tgStat := tagService.GetStat(path)
-	log.Println("Hashtag counts:")
-	for _, item := range tgStat {
-		log.Printf("%s: %d\n", item.Tag, item.Count)
-	}
+	items := tagService.GetStat(path)
+
+	f := format.NewHtmlFileFormatter("var/output/sdafsa.html")
+	f.Format(items)
 }
