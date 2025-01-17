@@ -43,8 +43,8 @@ func (f *HtmlFileFormatter) handler(w io.Writer, items []stat.StatItem) {
 	tmpl := template.Must(template.ParseFiles("templates/template.html"))
 
 	data := PageData{
-		Title:  "Пример списка структур",
-		Header: "Мои элементы:",
+		Title:  "Hashtag list",
+		Header: "Hashtags:",
 		Items:  items,
 	}
 
