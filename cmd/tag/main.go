@@ -1,26 +1,34 @@
 package main
 
 import (
+	"github.com/meesooqa/tg-stat-tag/internal/format"
+	"github.com/meesooqa/tg-stat-tag/internal/tag"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/meesooqa/tg-stat-tag/internal/format"
-	"github.com/meesooqa/tg-stat-tag/internal/tag"
 )
 
 func main() {
 	outputBaseDir := "var/output"
 
 	inputPath := os.Args[1]
-	outputPath := createOutputPath(outputBaseDir, inputPath)
+	/*
+		outputPath := createOutputPath(outputBaseDir, inputPath)
 
+		collector := tag.NewTagFileCollector("div.text a")
+		tagService := tag.NewService(collector)
+
+		items := tagService.GetStat(inputPath)
+
+		f := format.NewHtmlFileFormatter(outputPath)
+		f.Format(items)
+	*/
 	collector := tag.NewTagFileCollector("div.text a")
 	tagService := tag.NewService(collector)
 
 	items := tagService.GetStat(inputPath)
 
-	f := format.NewHtmlFileFormatter(outputPath)
+	f := format.NewCsvFileFormatter(outputBaseDir, inputPath)
 	f.Format(items)
 }
 
