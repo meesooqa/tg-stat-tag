@@ -1,4 +1,4 @@
-package main
+package format
 
 import (
 	"os"
@@ -6,7 +6,8 @@ import (
 	"testing"
 )
 
-func TestGetOutputPath(t *testing.T) {
+func TestFileFormatter_GetOutputPath(t *testing.T) {
+	f := FileFormatter{path: "", ext: "html"}
 	baseDir, err := os.MkdirTemp("", "test_html_files")
 	if err != nil {
 		t.Fatalf("Failed to create temporary directory: %v", err)
@@ -27,14 +28,15 @@ func TestGetOutputPath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := getOutputPath(baseDir, test.input)
+		result := f.getOutputPath(baseDir, test.input)
 		if result != test.expected {
 			t.Errorf("For input '%s', expected '%s' but got '%s'", test.input, test.expected, result)
 		}
 	}
 }
 
-func TestCreateOutputPath(t *testing.T) {
+func TestFileFormatter_CreateOutputPath(t *testing.T) {
+	f := FileFormatter{path: "", ext: "html"}
 	baseDir, err := os.MkdirTemp("", "test_html_files")
 	if err != nil {
 		t.Fatalf("Failed to create temporary directory: %v", err)
@@ -50,7 +52,7 @@ func TestCreateOutputPath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		createOutputPath("", test.inputPath)
+		f.createOutputPath("", test.inputPath)
 
 		dir := filepath.Dir(test.inputPath)
 		if _, err := os.Stat(dir); os.IsNotExist(err) {

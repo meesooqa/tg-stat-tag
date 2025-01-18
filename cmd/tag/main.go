@@ -1,11 +1,10 @@
 package main
 
 import (
+	"os"
+
 	"github.com/meesooqa/tg-stat-tag/internal/format"
 	"github.com/meesooqa/tg-stat-tag/internal/tag"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 func main() {
@@ -20,21 +19,4 @@ func main() {
 	//f := format.NewCsvFileFormatter(outputBaseDir, inputPath)
 	f := format.NewHtmlFileFormatter(outputBaseDir, inputPath)
 	f.Format(items)
-}
-
-func createOutputPath(baseDir string, inputPath string) string {
-	outputPath := getOutputPath(baseDir, inputPath)
-
-	dir := filepath.Dir(outputPath)
-	os.MkdirAll(dir, os.ModePerm)
-
-	return outputPath
-}
-
-func getOutputPath(baseDir string, inputPath string) string {
-	cleanPath := filepath.Clean(inputPath)
-	ext := filepath.Ext(cleanPath)
-	baseName := strings.TrimSuffix(cleanPath, ext)
-
-	return filepath.Join(baseDir, baseName+".html")
 }
