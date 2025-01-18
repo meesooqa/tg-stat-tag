@@ -10,25 +10,15 @@ import (
 
 func main() {
 	outputBaseDir := "var/output"
-
 	inputPath := os.Args[1]
-	/*
-		outputPath := createOutputPath(outputBaseDir, inputPath)
 
-		collector := tag.NewTagFileCollector("div.text a")
-		tagService := tag.NewService(collector)
-
-		items := tagService.GetStat(inputPath)
-
-		f := format.NewHtmlFileFormatter(outputPath)
-		f.Format(items)
-	*/
 	collector := tag.NewTagFileCollector("div.text a")
 	tagService := tag.NewService(collector)
 
 	items := tagService.GetStat(inputPath)
 
-	f := format.NewCsvFileFormatter(outputBaseDir, inputPath)
+	//f := format.NewCsvFileFormatter(outputBaseDir, inputPath)
+	f := format.NewHtmlFileFormatter(outputBaseDir, inputPath)
 	f.Format(items)
 }
 

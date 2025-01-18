@@ -1,12 +1,13 @@
 package format
 
 import (
-	"github.com/meesooqa/tg-stat-tag/internal/stat"
 	"html/template"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/meesooqa/tg-stat-tag/internal/stat"
 )
 
 type PageData struct {
@@ -18,13 +19,18 @@ type PageData struct {
 }
 
 type HtmlFileFormatter struct {
-	path string
+	FileFormatter
 }
 
-func NewHtmlFileFormatter(path string) *HtmlFileFormatter {
-	return &HtmlFileFormatter{
-		path: path,
+func NewHtmlFileFormatter(outputBaseDir string, inputPath string) *HtmlFileFormatter {
+	f := HtmlFileFormatter{
+		FileFormatter: FileFormatter{
+			ext: "html",
+		},
 	}
+	f.path = f.createOutputPath(outputBaseDir, inputPath)
+
+	return &f
 }
 
 func (f *HtmlFileFormatter) Format(items []stat.StatItem) {
